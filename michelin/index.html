@@ -1,59 +1,83 @@
 <!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AR Panneau</title>
-    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/jeromeetienne/AR.js@master/aframe/build/aframe-ar.min.js"></script>
-    <script src="https://threejs.org/build/three.js"></script>
-</head>
-<body style="margin: 0; overflow: hidden;">
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 
-    <a-scene embedded arjs="sourceType: webcam;">
-        <a-camera gps-camera rotation-reader></a-camera>
-        <a-entity id="panneau" gps-entity-place="latitude: 48.8291; longitude: 2.2336" 
-                  gltf-model="panneau.glb" scale="1 1 1">
-        </a-entity>
-    </a-scene>
-
+    <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+    <script src="https://rawgit.com/donmccurdy/aframe-extras/master/dist/aframe-extras.loaders.min.js"></script>    
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
+    
     <script>
-        // Coordonnées de l'île Seguin
-        const cible = { lat: 48.8291, lon: 2.2336 };
-
-        function getDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371; // Rayon de la Terre en km
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            return R * c * 1000; // Distance en mètres
-        }
-
-        function updatePanelDirection(position) {
-            const userLat = position.coords.latitude;
-            const userLon = position.coords.longitude;
-            const distance = getDistance(userLat, userLon, cible.lat, cible.lon);
-            
-            // Mise à jour de la distance sur le panneau
-            const panneau = document.getElementById('panneau');
-            panneau.setAttribute('text', `value: ${Math.round(distance)} m; color: white; align: center;`);
-
-            // Calculer l'angle de direction
-            const angle = Math.atan2(
-                cible.lon - userLon,
-                cible.lat - userLat
-            ) * (180 / Math.PI);
-            panneau.object3D.rotation.y = -angle * (Math.PI / 180);
-        }
-
-        // Mise à jour en fonction du GPS
-        navigator.geolocation.watchPosition(updatePanelDirection, console.error, {
-            enableHighAccuracy: true
-        });
-
+        navigator.geolocation.watchPosition(
+            (position) => console.log("Position:", position.coords.latitude, position.coords.longitude),
+            (error) => console.error("Erreur GPS:", error),
+            { enableHighAccuracy: true }
+        );
     </script>
-</body>
+    
+    <style>
+        #info { position: absolute; bottom: 20px; left: 20px;
+            font-size: 1em; background-color: white;}
+    </style>
+
+  </head>
+
+  <body style="margin: 0; overflow: hidden;">
+
+    <a-scene embedded
+             arjs="sourceType: webcam; trackingMethod: best; debugUIEnabled: false;"
+             vr-mode-ui="enabled: false">
+
+          <a-assets>
+              <a-asset-item id="glbModel" src="panneau.glb"></a-asset-item>
+          </a-assets>
+  
+          <a-entity   id ="panneau"
+                              scale="2 2 2"
+                              position="0 1.6 -5"
+                              rotation="0 90 0"
+                              animation-mixer
+                              gltf-model="#glbModel"
+                              gps-entity-place="latitude: 48.83318; longitude: 2.295659;">
+          </a-entity>
+
+      <a-camera gps-camera='gpsMinDistance: 5' rotation-readerlook-controls-enabled='false' arjs-look-controls='smoothingFactor: 0.1'> </a-camera>
+    </a-scene>
+  </body>
 </html>
+
+
+
+
+<!-- <html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+    <script src="https://rawgit.com/donmccurdy/aframe-extras/master/dist/aframe-extras.loaders.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>   
+</head>
+
+<body>
+
+    <a-scene arjs>
+        <a-assets>
+            <a-asset-item id="glbModel" src="./Flamingo.glb"></a-asset-item>
+        </a-assets>
+
+        <a-entity   id ="flamingo"
+                            scale="0.5 0.5 0.5"
+                            position="0 1.6 -5"
+                            rotation="0 90 0"
+                            animation-mixer
+                            gltf-model="#glbModel">
+        </a-entity>
+
+    </a-scene>
+</body>
+
+</html> -->
